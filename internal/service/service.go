@@ -141,7 +141,7 @@ func (s *Service) GetUserTransactions(ctx context.Context, userID int64) ([]*mod
 }
 
 func (s *Service) ConfirmOrderPayment(ctx context.Context, eventData OrderData) error {
-	if eventData.PaymentMethod == "PAYMENT_METHOD_ON_DELIVERY" {
+	if eventData.PaymentMethod == string(model.OnDelivery) {
 		if err := s.sendPaymentSucceededEvent(ctx, eventData); err != nil {
 			return ErrSendingEvent
 		}
@@ -199,7 +199,7 @@ func (s *Service) ConfirmOrderPayment(ctx context.Context, eventData OrderData) 
 }
 
 func (s *Service) CompensatePayment(ctx context.Context, eventData OrderData) error {
-	if eventData.PaymentMethod == "PAYMENT_METHOD_ON_DELIVERY" {
+	if eventData.PaymentMethod == string(model.OnDelivery) {
 		if err := s.sendPaymentFailedEvent(ctx, eventData); err != nil {
 			return ErrSendingEvent
 		}

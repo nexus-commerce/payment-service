@@ -4,13 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/google/uuid"
-	cart "github.com/nexus-commerce/nexus-contracts-go/cart/v1"
-	"github.com/segmentio/kafka-go"
-	"github.com/stripe/stripe-go/v72"
-	"github.com/stripe/stripe-go/v72/paymentintent"
-	"github.com/stripe/stripe-go/v72/refund"
-	"google.golang.org/grpc/metadata"
 	"html/template"
 	"log"
 	"math"
@@ -18,6 +11,14 @@ import (
 	"payment-service/internal/repository"
 	"strconv"
 	"time"
+
+	"github.com/google/uuid"
+	cart "github.com/nexus-commerce/nexus-contracts-go/cart/v1"
+	"github.com/segmentio/kafka-go"
+	"github.com/stripe/stripe-go/v72"
+	"github.com/stripe/stripe-go/v72/paymentintent"
+	"github.com/stripe/stripe-go/v72/refund"
+	"google.golang.org/grpc/metadata"
 )
 
 var (
@@ -140,7 +141,7 @@ func (s *Service) GetUserTransactions(ctx context.Context, userID int64) ([]*mod
 }
 
 func (s *Service) ConfirmOrderPayment(ctx context.Context, eventData OrderData) error {
-	if eventData.PaymentMethod == "ON_DELIVERY" {
+	if eventData.PaymentMethod == "PAYMENT_METHOD_ON_DELIVERY" {
 		if err := s.sendPaymentSucceededEvent(ctx, eventData); err != nil {
 			return ErrSendingEvent
 		}
@@ -198,7 +199,7 @@ func (s *Service) ConfirmOrderPayment(ctx context.Context, eventData OrderData) 
 }
 
 func (s *Service) CompensatePayment(ctx context.Context, eventData OrderData) error {
-	if eventData.PaymentMethod == "ON_DELIVERY" {
+	if eventData.PaymentMethod == "PAYMENT_METHOD_ON_DELIVERY" {
 		if err := s.sendPaymentFailedEvent(ctx, eventData); err != nil {
 			return ErrSendingEvent
 		}

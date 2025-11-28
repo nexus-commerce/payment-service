@@ -7,17 +7,17 @@ import (
 type Status string
 
 const (
-	Pending   Status = "pending"
-	Completed Status = "completed"
-	Failed    Status = "failed"
-	Refunded  Status = "refunded"
+	Pending   Status = "PENDING"
+	Completed Status = "COMPLETED"
+	Failed    Status = "FAILED"
+	Refunded  Status = "REFUNDED"
 )
 
 type PaymentMethod string
 
 const (
-	Card       PaymentMethod = "CARD"
-	OnDelivery PaymentMethod = "ON_DELIVERY"
+	Card       PaymentMethod = "PAYMENT_METHOD_CARD"
+	OnDelivery PaymentMethod = "PAYMENT_METHOD_ON_DELIVERY"
 )
 
 type Currency string
@@ -29,6 +29,7 @@ const (
 
 type Transaction struct {
 	ID                   int64         `json:"id"`
+	UserID               int64         `json:"user_id"`
 	OrderID              *int64        `json:"order_id"`
 	Amount               float64       `json:"amount"`
 	Currency             Currency      `json:"currency"`

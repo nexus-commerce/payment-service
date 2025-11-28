@@ -15,11 +15,12 @@ func New(conn *sql.DB) *Repository {
 }
 
 func (r *Repository) CreateTransaction(ctx context.Context, transaction *model.Transaction) (int64, error) {
-	query := `INSERT INTO transactions (order_id, amount, currency, status, gateway_transaction_id, payment_method) 
-              VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
+	query := `INSERT INTO transactions (order_id, user_id, amount, currency, status, gateway_transaction_id, payment_method) 
+              VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 
 	err := r.conn.QueryRowContext(ctx, query,
 		transaction.OrderID,
+		transaction.UserID,
 		transaction.Amount,
 		transaction.Currency,
 		transaction.Status,
@@ -31,6 +32,39 @@ func (r *Repository) CreateTransaction(ctx context.Context, transaction *model.T
 	}
 
 	return transaction.ID, nil
+}
+
+func (r *Repository) GetUserTransactions(ctx context.Context, userID int64) ([]*model.Transaction, error) {
+	query := `SELECT id, order_id, amount, currency, status, gateway_transaction_id, payment_method, created_at 
+			  FROM transactions WHERE user_id = $1 ORDER BY created_at DESC`
+
+	rows, err := r.conn.QueryContext(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var transactions []*model.Transaction
+	for rows.Next() {
+		var transaction model.Transaction
+		err := rows.Scan(
+			&transaction.ID,
+			&transaction.OrderID,
+			&transaction.Amount,
+			&transaction.Currency,
+			&transaction.Status,
+			&transaction.GatewayTransactionID,
+			&transaction.PaymentMethod,
+			&transaction.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		transaction.UserID = userID
+		transactions = append(transactions, &transaction)
+	}
+
+	return transactions, nil
 }
 
 func (r *Repository) GetTransactionByPaymentIntentID(ctx context.Context, paymentIntentID string) (*model.Transaction, error) {

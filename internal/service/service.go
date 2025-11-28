@@ -78,7 +78,7 @@ func New(repo *repository.Repository, cartClient cart.ShoppingCartServiceClient,
 	}
 }
 
-func (s *Service) ProcessPayment(ctx context.Context) (*stripe.PaymentIntent, error) {
+func (s *Service) ProcessPayment(ctx context.Context, userID int64) (*stripe.PaymentIntent, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, ErrMissingMetadata
@@ -105,7 +105,7 @@ func (s *Service) ProcessPayment(ctx context.Context) (*stripe.PaymentIntent, er
 	amountInCents := int64(math.Round(amount*100) / 100)
 
 	params := &stripe.PaymentIntentParams{
-		Amount:   stripe.Int64(amountInCents),
+		Amount:   stripe.Int64(amountInCents * 100),
 		Currency: stripe.String(string(stripe.CurrencyUSD)),
 		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
 			Enabled: stripe.Bool(true),
@@ -118,6 +118,7 @@ func (s *Service) ProcessPayment(ctx context.Context) (*stripe.PaymentIntent, er
 	}
 
 	transaction := model.Transaction{
+		UserID:               userID,
 		OrderID:              nil,
 		Amount:               amount,
 		Currency:             model.USD,
@@ -132,6 +133,10 @@ func (s *Service) ProcessPayment(ctx context.Context) (*stripe.PaymentIntent, er
 	}
 
 	return pi, nil
+}
+
+func (s *Service) GetUserTransactions(ctx context.Context, userID int64) ([]*model.Transaction, error) {
+	return s.repo.GetUserTransactions(ctx, userID)
 }
 
 func (s *Service) ConfirmOrderPayment(ctx context.Context, eventData OrderData) error {

@@ -1,9 +1,10 @@
 CREATE TYPE currency AS ENUM ('EUR', 'USD', 'UAH');
-CREATE TYPE payment_method AS ENUM ('CARD', 'ON_DELIVERY');
-CREATE TYPE transaction_status AS ENUM ('pending', 'completed', 'failed', 'refunded');
+CREATE TYPE payment_method AS ENUM ('PAYMENT_METHOD_CARD', 'PAYMENT_METHOD_ON_DELIVERY');
+CREATE TYPE transaction_status AS ENUM ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED');
 
 CREATE TABLE IF NOT EXISTS transactions (
      id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
      order_id BIGINT DEFAULT NULL,
      amount DECIMAL(10, 2) NOT NULL,
     currency currency NOT NULL,

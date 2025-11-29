@@ -19,7 +19,7 @@ type Server struct {
 func (s *Server) ProcessPayment(ctx context.Context, _ *pb.ProcessPaymentRequest) (*pb.ProcessPaymentResponse, error) {
 	userID, ok := ctx.Value("user-id").(int)
 	if !ok {
-		return nil, status.Error(codes.FailedPrecondition, "user id missing") // return FAILED_PRECONDITION status here as the system should never get into this state
+		return nil, status.Error(codes.Internal, "user id missing") // return FAILED_PRECONDITION status here as the system should never get into this state
 	}
 
 	userIDInt := int64(userID)
@@ -55,7 +55,7 @@ func (s *Server) ProcessPayment(ctx context.Context, _ *pb.ProcessPaymentRequest
 func (s *Server) GetPayments(ctx context.Context, _ *pb.GetPaymentsRequest) (*pb.GetPaymentsResponse, error) {
 	userID, ok := ctx.Value("user-id").(int)
 	if !ok {
-		return nil, status.Error(codes.FailedPrecondition, "user id missing") // return FAILED_PRECONDITION status here as the system should never get into this state
+		return nil, status.Error(codes.Internal, "user id missing")
 	}
 
 	userIDInt := int64(userID)

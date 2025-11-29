@@ -3,14 +3,12 @@ package server
 import (
 	"context"
 	"errors"
-	"log"
-	"payment-service/internal/service"
-	"strings"
-
 	structpb "github.com/golang/protobuf/ptypes/struct"
 	pb "github.com/nexus-commerce/nexus-contracts-go/payment/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"log"
+	"payment-service/internal/service"
 )
 
 type Server struct {
@@ -26,7 +24,7 @@ func (s *Server) ProcessPayment(ctx context.Context, _ *pb.ProcessPaymentRequest
 
 	userIDInt := int64(userID)
 
-	pi, err := s.Service.ProcessPayment(ctx, userIDInt)
+	t, pi, err := s.Service.ProcessPayment(ctx, userIDInt)
 	if err != nil {
 		log.Println(err)
 		switch {
@@ -40,8 +38,17 @@ func (s *Server) ProcessPayment(ctx context.Context, _ *pb.ProcessPaymentRequest
 
 	return &pb.ProcessPaymentResponse{
 		ClientSecret: pi.ClientSecret,
-		Amount:       float32(pi.Amount) / 100,
-		Currency:     strings.ToUpper(pi.Currency),
+		Payment: &pb.Payment{
+			Id:            t.ID,
+			Amount:        float32(t.Amount),
+			Currency:      pb.Currency(pb.Currency_value[string(t.Currency)]),
+			Status:        pb.Status(pb.Status_value[string(t.Status)]),
+			PaymentMethod: pb.PaymentMethod(pb.PaymentMethod_value[string(t.PaymentMethod)]),
+			OrderId:       0,
+			GatewayTransactionId: &structpb.Value{
+				Kind: &structpb.Value_StringValue{StringValue: *t.GatewayTransactionID},
+			},
+		},
 	}, nil
 }
 
@@ -64,9 +71,9 @@ func (s *Server) GetPayments(ctx context.Context, _ *pb.GetPaymentsRequest) (*pb
 		payment := &pb.Payment{
 			Id:            t.ID,
 			Amount:        float32(t.Amount),
-			Currency:      string(t.Currency),
-			Status:        string(t.Status),
-			PaymentMethod: string(t.PaymentMethod),
+			Currency:      pb.Currency(pb.Currency_value[string(t.Currency)]),
+			Status:        pb.Status(pb.Status_value[string(t.Status)]),
+			PaymentMethod: pb.PaymentMethod(pb.PaymentMethod_value[string(t.PaymentMethod)]),
 		}
 
 		if t.OrderID != nil {

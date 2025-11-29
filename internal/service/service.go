@@ -79,23 +79,23 @@ func New(repo *repository.Repository, cartClient cart.ShoppingCartServiceClient,
 	}
 }
 
-func (s *Service) ProcessPayment(ctx context.Context, userID int64) (*stripe.PaymentIntent, error) {
+func (s *Service) ProcessPayment(ctx context.Context, userID int64) (*model.Transaction, *stripe.PaymentIntent, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, ErrMissingMetadata
+		return nil, nil, ErrMissingMetadata
 	}
 
 	ctx = metadata.NewOutgoingContext(ctx, md)
 
 	resp, err := s.cartClient.GetCart(ctx, &cart.GetCartRequest{})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	items := resp.GetItems()
 
 	if len(items) == 0 {
-		return nil, ErrEmptyCart
+		return nil, nil, ErrEmptyCart
 	}
 
 	var amount float64
@@ -115,10 +115,10 @@ func (s *Service) ProcessPayment(ctx context.Context, userID int64) (*stripe.Pay
 
 	pi, err := paymentintent.New(params)
 	if err != nil {
-		return nil, ErrProcessingPayment
+		return nil, nil, ErrProcessingPayment
 	}
 
-	transaction := model.Transaction{
+	transaction := &model.Transaction{
 		UserID:               userID,
 		OrderID:              nil,
 		Amount:               amount,
@@ -128,12 +128,12 @@ func (s *Service) ProcessPayment(ctx context.Context, userID int64) (*stripe.Pay
 		PaymentMethod:        model.Card,
 	}
 
-	_, err = s.repo.CreateTransaction(ctx, &transaction)
+	_, err = s.repo.CreateTransaction(ctx, transaction)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return pi, nil
+	return transaction, pi, nil
 }
 
 func (s *Service) GetUserTransactions(ctx context.Context, userID int64) ([]*model.Transaction, error) {

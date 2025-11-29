@@ -8,7 +8,7 @@ require (
 	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
-	github.com/nexus-commerce/nexus-contracts-go v0.0.4
+	github.com/nexus-commerce/nexus-contracts-go v0.0.8
 	github.com/segmentio/kafka-go v0.4.49
 	github.com/stripe/stripe-go/v72 v72.122.0
 	google.golang.org/grpc v1.76.0

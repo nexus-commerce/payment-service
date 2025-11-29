@@ -24,7 +24,7 @@ type Currency string
 
 const (
 	EUR Currency = "CURRENCY_EUR"
-	USD Currency = "USD"
+	USD Currency = "CURRENCY_USD"
 )
 
 type Transaction struct {

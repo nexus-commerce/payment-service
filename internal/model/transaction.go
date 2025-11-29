@@ -7,10 +7,10 @@ import (
 type Status string
 
 const (
-	Pending   Status = "PENDING"
-	Completed Status = "COMPLETED"
-	Failed    Status = "FAILED"
-	Refunded  Status = "REFUNDED"
+	Pending   Status = "STATUS_PENDING"
+	Completed Status = "STATUS_COMPLETED"
+	Failed    Status = "STATUS_FAILED"
+	Refunded  Status = "STATUS_REFUNDED"
 )
 
 type PaymentMethod string
@@ -23,7 +23,7 @@ const (
 type Currency string
 
 const (
-	EUR Currency = "EUR"
+	EUR Currency = "CURRENCY_EUR"
 	USD Currency = "USD"
 )
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"html/template"
 	"log"
 	"math"
@@ -164,12 +163,7 @@ func (s *Service) ConfirmOrderPayment(ctx context.Context, eventData OrderData) 
 		return err
 	}
 
-	fmt.Println(pi.Amount)
-	fmt.Println(eventData.Amount)
-
-	orderAmountInCents := int64(math.Round(eventData.Amount*100) / 100)
-
-	fmt.Println(orderAmountInCents)
+	orderAmountInCents := int64(math.Round(eventData.Amount * 100))
 
 	if pi.Amount != orderAmountInCents {
 		if err = s.sendPaymentFailedEvent(ctx, eventData); err != nil {
